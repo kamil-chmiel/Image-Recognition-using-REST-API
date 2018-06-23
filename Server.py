@@ -1,5 +1,6 @@
 import os
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
+from Network_VGG16 import VGG16Network
 
 app = Flask(__name__)
 
@@ -18,9 +19,20 @@ def upload_file():
     f = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
 
     file.save(f)
-    # tutaj chyba cos z kerasem
+    result = VGG16Network(file).network_predict()
+    label = [result[0][0], result[0][1], result[0][2]] # three most probable results
+    print(label)  # show results format
 
-    return "tu cos co zwracamy" #render_template('index.html')
+    return '%s %f %s' % (label[0][1], label[0][2]*100, "%")
+
+    # TODO: Add proper JSON Response
+    #return jsonify(
+#
+    #    result1=label[0],
+   #     result2=label[1],
+   #     result3=label[2]
+
+  #  )
 
 
 @app.route('/train', methods=['POST'])
@@ -29,8 +41,9 @@ def train_image():
     f = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
 
     file.save(f)
-    # tutaj chyba cos do trenowania w jeden ksiezyc
+    # TODO: add 'dotrenowywanie w jeden ksiezyc' option
 
     return "Image successfully trained" #render_template('index.html')
+
 
 app.run(port=5000)
