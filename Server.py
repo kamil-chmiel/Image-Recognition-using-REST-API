@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, request, jsonify
-from Network_VGG16 import VGG16Network
+import Tools
 
 app = Flask(__name__)
 
@@ -17,22 +17,29 @@ def hello_world():
 def upload_file():
     file = request.files['image']
     f = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-
     file.save(f)
-    result = VGG16Network(file).network_predict()
-    label = [result[0][0], result[0][1], result[0][2]] # three most probable results
+
+    result = Tools.network_predict(file)
+
+    label = [result[0][0], result[0][1], result[0][2]]  # three most probable results
     print(label)  # show results format
 
-    return '%s %f %s' % (label[0][1], label[0][2]*100, "%")
+    results = [
+        {
+            'result': label[0][1],
+            'probability': str(label[0][2])
+        },
+        {
+            'result': label[1][1],
+            'probability': str(label[1][2])
+        },
+        {
+            'result': label[2][1],
+            'probability': str(label[2][2])
+        }
+    ]
 
-    # TODO: Add proper JSON Response
-    #return jsonify(
-#
-    #    result1=label[0],
-   #     result2=label[1],
-   #     result3=label[2]
-
-  #  )
+    return jsonify({'results': results})
 
 
 @app.route('/train', methods=['POST'])
@@ -43,7 +50,10 @@ def train_image():
     file.save(f)
     # TODO: add 'dotrenowywanie w jeden ksiezyc' option
 
-    return "Image successfully trained" #render_template('index.html')
+    return "Image successfully trained"  # render_template('index.html')
 
 
-app.run(port=5000)
+if __name__ == "__main__":
+    print("Starting server...")
+    Tools.load_model()
+    app.run(port=5000)
