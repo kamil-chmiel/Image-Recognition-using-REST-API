@@ -36,4 +36,9 @@ def network_predict(image):
     return label
 
 
+def train_model(image):
+
+    image_to_train_on = prepare_image(image)
+
+
 

@@ -48,7 +48,7 @@ def train_image():
     f = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
 
     file.save(f)
-    # TODO: add 'dotrenowywanie w jeden ksiezyc' option
+    Tools.train_model(file)
 
     return "Image successfully trained"  # render_template('index.html')
 
